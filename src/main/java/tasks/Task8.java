@@ -51,7 +51,7 @@ public class Task8 {
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
     return persons.stream()
-            .collect(Collectors.toMap(Person::getId, Person::getFirstName));
+            .collect(Collectors.toMap(Person::getId, Person::getFirstName, (x ,y) -> y));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
