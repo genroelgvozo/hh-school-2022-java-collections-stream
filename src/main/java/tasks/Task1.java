@@ -2,9 +2,14 @@ package tasks;
 
 import common.Person;
 import common.PersonService;
-import java.util.Collections;
+
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.Comparator;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.toMap;
 
 /*
 Задача 1
@@ -23,6 +28,10 @@ public class Task1 {
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
     Set<Person> persons = personService.findPersons(personIds);
-    return Collections.emptyList();
+    Map<Integer, Integer> ordinalNumbers = IntStream.range(0, personIds.size())
+            .boxed()
+            .collect(toMap(personIds::get, ordinalNumber -> ordinalNumber));
+    Comparator<Person> byOrdinalNumbers = Comparator.comparingInt(person -> ordinalNumbers.get(person.getId()));
+    return persons.stream().sorted(byOrdinalNumbers).toList();
   }
 }
