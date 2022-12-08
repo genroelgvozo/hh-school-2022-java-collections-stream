@@ -18,14 +18,14 @@ public class Task6 {
     public static Set<String> getPersonDescriptions(Collection<Person> persons,
                                                     Map<Integer, Set<Integer>> personAreaIds,
                                                     Collection<Area> areas) {
-
+        Map<Integer, String> areaIdToName = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
         return persons.stream()
                 .collect(Collectors.toMap(
                         Person::getFirstName,
-                        person -> areas.stream()
-                                .filter(area -> personAreaIds.get(person.getId()).contains(area.getId()))
-                                .map(Area::getName).collect(Collectors.toList())
+                        person -> personAreaIds.get(person.getId()).stream()
+                                .map(areaIdToName::get)
+                                .collect(Collectors.toList())
                 )).entrySet().stream()
-                .collect(HashSet::new, (m, e) -> e.getValue().forEach(k -> m.add(e.getKey() + " - " + k)), Set::addAll);
+                .collect(HashSet::new, (answer, entry) -> entry.getValue().forEach(areaName -> answer.add(entry.getKey() + " - " + areaName)), Set::addAll);
     }
 }
