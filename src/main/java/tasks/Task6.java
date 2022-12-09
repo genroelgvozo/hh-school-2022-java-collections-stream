@@ -6,6 +6,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /*
 Имеются
@@ -19,6 +22,12 @@ public class Task6 {
   public static Set<String> getPersonDescriptions(Collection<Person> persons,
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
-    return new HashSet<>();
+    Function<Person, Set<Integer>> getAreaIdsFor = (person) -> personAreaIds.get(person.getId());
+    Map<Integer, String> areasDictionary = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
+    BiFunction<Person, Integer, String> format =
+            (person, areaId) -> String.format("%s - %s", person.getFirstName(), areasDictionary.get(areaId));
+    return  persons.stream()
+            .flatMap(person -> getAreaIdsFor.apply(person).stream().map(areaId -> format.apply(person, areaId)))
+            .collect(Collectors.toSet());
   }
 }
