@@ -60,7 +60,7 @@ public class Task8 {
   //...
   public long countEven(Supplier<Stream<Integer>> streamSupplier) {
     try {
-      return streamSupplier.get().sequential().filter(num -> num % 2 == 0)
+      return streamSupplier.get().filter(num -> num % 2 == 0)
               .count();
     } catch (IllegalStateException e) {
       log.log(Level.WARNING, e.getMessage(), e);
