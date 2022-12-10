@@ -21,7 +21,7 @@ public class Task6 {
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
     Map<Integer, String> idToAreaName = areas.stream()
-            .collect(Collectors.toMap(Area::getId, Area::getName));
+            .collect(Collectors.toMap(Area::getId, Area::getName, (existedId, newId) -> newId));
 
     return persons.stream()
             .flatMap(person -> personAreaIds.get(person.getId()).stream()
