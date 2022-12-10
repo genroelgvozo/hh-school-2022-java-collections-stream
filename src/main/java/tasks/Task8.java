@@ -112,3 +112,4 @@ public class Task8 {
     return numbers.parallel().filter(n -> (n & 1) == 0).count();
   }
 }
+
