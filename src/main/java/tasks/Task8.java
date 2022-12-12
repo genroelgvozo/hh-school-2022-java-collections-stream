@@ -30,6 +30,8 @@ public class Task8 {
   5. Возвращение пустого листа, если параметр метода == null.
   6. Если имя - объект, ссылающийся на null, берем пустую строку в кач-ве имени.
   7. Если какой-то чудик назвался "null", то его имя отработает нормально.
+  UPDATE:
+  1. Поменял альтернативный вариант с основным
 
    */
   public List<String> getPersonsFirstNames(List<Person> persons) {
@@ -37,7 +39,7 @@ public class Task8 {
             .skip(1)
             .filter(Objects::nonNull)
             .map(Person::getFirstName)
-            .map(firstName -> firstName == null ? "" : firstName)// альтернативно .filter(Objects::nonNull), чтобы отсечь имена со ссылкой на null
+            .filter(Objects::nonNull)//альтернативно .map(firstName -> firstName == null ? "" : firstName), чтобы заменять null пустой строкой
             .collect(Collectors.toList()) : Collections.emptyList();
   }
 
@@ -86,8 +88,16 @@ public class Task8 {
   // есть ли совпадающие в двух коллекциях персоны?
   // Убрал велосипед + naming
   // Добавил проверку на null (хотя она может быть лишней, если в команде хорошие договоренности)
+  /*
+     UPDATE:
+     Вместо O(N*M) для пары, например, листов получаем O(N+M) - собираем set, итерируемся по листу и кидаем
+     contains() на set за O(1). То, что итерируемся по листу, а проверяем set, обеспечивается disjoint'ом.
+   */
   public boolean haveIntersection(Collection<Person> persons1, Collection<Person> persons2) {
     if(persons1 == null || persons2 == null) return false;
+    if(!(persons1 instanceof Set || persons2 instanceof Set)) {
+      persons1 = new HashSet<>(persons1);
+    }
     return !Collections.disjoint(persons1, persons2);
   }
   /*
@@ -106,10 +116,12 @@ public class Task8 {
   3. Этот метод - как в задачке "найди третьего лишнего", не имеет никакого отношения к остальным. Он должен где-то в
   Utils по-хорошему лежать, но, строго говоря, имя Task8 нас никак не ограничивает.
   4. Нейминг не говорящий, уточнил.
+  UPDATE:
+  1. Убрал ненужную оптимизацию.
    */
   //...
   public long countEvenIntegersParallel(Stream<Integer> numbers) {
-    return numbers.parallel().filter(n -> (n & 1) == 0).count();
+    return numbers.parallel().filter(n -> n % 2 == 0).count();
   }
 }
 
