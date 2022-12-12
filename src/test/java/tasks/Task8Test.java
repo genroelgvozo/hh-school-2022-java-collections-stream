@@ -62,7 +62,7 @@ class Task8Test {
 
     @Test
     void getPersonsFirstNamesCompleteNullTest() {
-        assertEquals(List.of("Kolya", "Nikita", "", "Nemo", "Nobody", "null"), task8.getPersonsFirstNames(listWithNull));
+        assertEquals(List.of("Kolya", "Nikita", "Nemo", "Nobody", "null"), task8.getPersonsFirstNames(listWithNull));
     }
 
     @Test
@@ -88,7 +88,7 @@ class Task8Test {
     @Test
     void getPersonsFirstNamesShouldReturnListOfManyWithReducedSizeIfListOfManySend() {
         for (int i = 0; i < 10; i++) {
-            List<Person> listOfMany = Stream.generate(new PersonSupplier())
+            List<Person> listOfMany = Stream.generate(new PersonGenerator())
                     .limit(SIZE_OF_LIST_OF_MANY)
                     .collect(Collectors.toList());
             assertEquals(listOfMany.size() - 1, task8.getPersonsFirstNames(listOfMany).size());
@@ -97,7 +97,7 @@ class Task8Test {
 
     @Test
     void getUniqueFirstNamesCompleteNullTest() {
-        assertEquals(Set.of("", "Kolya", "null", "Nikita", "Nobody", "Nemo"), task8.getUniqueFirstNames(listWithNull));
+        assertEquals(Set.of("Kolya", "null", "Nikita", "Nobody", "Nemo"), task8.getUniqueFirstNames(listWithNull));
     }
 
     @Test
