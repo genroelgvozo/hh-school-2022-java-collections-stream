@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public class PersonSupplier implements Supplier<Person> {
+public class PersonGenerator implements Supplier<Person> {
     @Override
     public Person get() {
         return new Person(new Random().nextInt(), getRandomName(), Instant.now());
