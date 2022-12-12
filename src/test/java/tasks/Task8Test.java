@@ -3,8 +3,11 @@ package tasks;
 import common.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.*;
@@ -14,9 +17,10 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class Task8Test {
-
-    Task8 task8 = new Task8();
+    @InjectMocks
+    Task8 task8;
     List<Person> p1;
 
     @BeforeEach
@@ -50,7 +54,7 @@ class Task8Test {
 
     @Test
     void getPersonNames() {
-        assertEquals(5,task8.getPersonNames(p1).size());
+        assertEquals(5, task8.getPersonNames(p1).size());
         assertEquals("firstName0 secondName", task8.getPersonNames(p1).get(1));
     }
 
