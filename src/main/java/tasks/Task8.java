@@ -95,7 +95,7 @@ public class Task8 {
    */
   public boolean haveIntersection(Collection<Person> persons1, Collection<Person> persons2) {
     if(persons1 == null || persons2 == null) return false;
-    if(!(persons1 instanceof Set || persons2 instanceof Set)) {
+    if(!(persons1 instanceof HashSet || persons2 instanceof HashSet)) {
       persons1 = new HashSet<>(persons1);
     }
     return !Collections.disjoint(persons1, persons2);
