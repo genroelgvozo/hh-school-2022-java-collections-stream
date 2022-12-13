@@ -1,12 +1,8 @@
 package tasks;
 
 import common.Person;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,68 +16,112 @@ P.S. функции тут разные и рабочие (наверное), н
 P.P.S Здесь ваши правки желательно прокомментировать (можно на гитхабе в пулл реквесте)
  */
 public class Task8 {
-
-  private long count;
+//В классе нет геттера для count, и самостоятельное его использование не предполагается.
+//По своей природе это локальная переменная, удалил.
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
-  public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+  /*
+  1. Проверка persons.size() == 0 не нужна: коллектор и так вернет пустой стрим.
+  Какие-то накладные расходы здесь не существенны, а лишняя эта проверка читаемость кода нарушает.
+  2. persons.remove(0); не требуется, skip(1) отработает быстрее и не затронет
+  передаваемый лист.ReturnEmptyString
+  3. Предлагаю сделать более читаемое ("говорящее") имя метода (важно, мы же только имена возвращаем).
+  4. Защита от объекта со ссылкой на null в коллекции.
+  5. Возвращение пустого листа, если параметр метода == null.
+  6. Если имя - объект, ссылающийся на null, берем пустую строку в кач-ве имени.
+  7. Если какой-то чудик назвался "null", то его имя отработает нормально.
+  UPDATE:
+  1. Поменял альтернативный вариант с основным
+
+   */
+  public List<String> getPersonsFirstNames(List<Person> persons) {
+    return persons != null ? persons.stream()
+            .skip(1)
+            .filter(Objects::nonNull)
+            .map(Person::getFirstName)
+            .filter(Objects::nonNull)//альтернативно .map(firstName -> firstName == null ? "" : firstName), чтобы заменять null пустой строкой
+            .collect(Collectors.toList()) : Collections.emptyList();
   }
 
   //ну и различные имена тоже хочется
-  public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+  /* Мы пакуем результат в set, они в любом случае разными будут.
+  Кроме того, можно избавиться от накладных расходов создания
+  стрима и получить конструкцию короче, просто создав set на базе листа.
+  + еще указал, что мы только имена (без фамилий и отчеств)
+  возвращаем.
+  */
+  public Set<String> getUniqueFirstNames(List<Person> persons) {
+    return new HashSet<>(getPersonsFirstNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
-  public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
-
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+  /*
+  1. В исходном варианте отсутствует отчество - поправил.
+  2. Воспользовался стримом (раз уж проходили их, надо пользоваться), но есть еще варианты
+  с getNonNullString() вкупе со StringBuilder, StringJoiner или Strings.concat().
+  3. Такой метод лучше инкапсулировать в Person, конечно.
+  4. Поменял имя метода на более очевидное.
+   */
+  public String getFullNameOfPerson(Person person) {
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
-  public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+  /*
+  1. Согласно логике программы, при дублировании ключа
+  значение обновлять не надо. В цикле это, думаю, лучше делать через putIfAbsent(),
+  для стрима хорошо заходит мердж в рамках Collectors.toMap()
+  2. Уточнил имя метода.
+  3. Даже если все имена ссылаются на null, на выходе получим пустую строку.
+  4. Режим паранойи ON - проверка отсечение null в коллекции (вдруг встретится!).
+  */
+  public Map<Integer, String> getPersonIdToFullName(Collection<Person> persons) {
+    return persons.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(Person::getId,
+                    this::getFullNameOfPerson,
+                    (existedName, newName) -> existedName));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
-  public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
+  // Убрал велосипед + naming
+  // Добавил проверку на null (хотя она может быть лишней, если в команде хорошие договоренности)
+  /*
+     UPDATE:
+     Вместо O(N*M) для пары, например, листов получаем O(N+M) - собираем set, итерируемся по листу и кидаем
+     contains() на set за O(1). То, что итерируемся по листу, а проверяем set, обеспечивается disjoint'ом.
+   */
+  public boolean haveIntersection(Collection<Person> persons1, Collection<Person> persons2) {
+    if(persons1 == null || persons2 == null) return false;
+    if(!(persons1 instanceof HashSet || persons2 instanceof HashSet)) {
+      persons1 = new HashSet<>(persons1);
     }
-    return has;
+    return !Collections.disjoint(persons1, persons2);
   }
-
+  /*
+  1. Исключил ненужный счетчик (классе нет геттера для count, и самостоятельное его использование, насколько я понимаю,
+  не предполагается). Цель метода - посчитать четные числа.
+  2. В целом - метод очень сомнительный. Long он возвращает, видимо, из-за того, что его возвращает count (а не из-за
+  того, что предполагается невероятных размеров стримы туда заталкивать), но все же он специализированный - строго для
+  интеджеров и строго проверка четности. Отсюда можно предположить, что либо крайне важнна именно проверка четности
+  интов (тогда разумно сделать его более быстрым, оперируя битами вместо дорогой с т.з. процессорного времени операцией
+  взятия остатка от деления), либо сделать его более общим (и тогда изменить арность до двух, вторым параметром
+  передавать делитель - или, как вариант, предикат для filter). С точки зрения эффективности, возможно, стоит сделать
+  его также параллельным - но лучше тогда сделать два метода, один для большого набора (собственно, параллельный),
+  другой для небольшого.
+  В общем, я решил, что цель метода - максимально быстрый подсчет кол-ва четных эл-тов для огромных (поэтому parallel)
+  стримов.
+  3. Этот метод - как в задачке "найди третьего лишнего", не имеет никакого отношения к остальным. Он должен где-то в
+  Utils по-хорошему лежать, но, строго говоря, имя Task8 нас никак не ограничивает.
+  4. Нейминг не говорящий, уточнил.
+  UPDATE:
+  1. Убрал ненужную оптимизацию.
+   */
   //...
-  public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+  public long countEvenIntegersParallel(Stream<Integer> numbers) {
+    return numbers.parallel().filter(n -> n % 2 == 0).count();
   }
 }
+
