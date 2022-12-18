@@ -1,8 +1,8 @@
 package tasks;
 
 import common.Person;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 /*
@@ -10,8 +10,12 @@ import java.util.List;
 Отсортировать коллекцию сначала по фамилии, по имени (при равной фамилии), и по дате создания (при равных фамилии и имени)
  */
 public class Task3 {
-
   public static List<Person> sort(Collection<Person> persons) {
-    return new ArrayList<>(persons);
+    return persons
+            .stream()
+            .sorted(Comparator.comparing(Person::getFirstName)
+                    .thenComparing(Person::getSecondName)
+                    .thenComparing(Person::getCreatedAt))
+            .toList();
   }
 }
