@@ -2,10 +2,12 @@ package tasks;
 
 import common.Area;
 import common.Person;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -20,15 +22,15 @@ public class Task6 {
   public static Set<String> getPersonDescriptions(Collection<Person> persons,
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
-    Map<Integer, String> areaIdToAreaName = areas.stream().collect(Collectors.toMap(Area::getId, Area::getName));
-    Set<String> result = new HashSet<>();
-    for (Person person : persons) {
-      for (Integer areaId : personAreaIds.get(person.getId())) {
-        if (areaIdToAreaName.containsKey(areaId)) {
-          result.add(person.getFirstName() + " - " + areaIdToAreaName.get(areaId));
-        }
-      }
-    }
-    return result;
+    Map<Integer, Area> idToArea = convertToMap(areas);
+    return persons.stream()
+        .flatMap(
+            person -> personAreaIds.get(person.getId()).stream()
+                .map(areaId -> person.getFirstName() + " - " + idToArea.get(areaId).getName()))
+        .collect(Collectors.toSet());
+  }
+
+  public static Map<Integer, Area> convertToMap(Collection<Area> areas) {
+    return areas.stream().collect(Collectors.toMap(Area::getId, Function.identity()));
   }
 }
