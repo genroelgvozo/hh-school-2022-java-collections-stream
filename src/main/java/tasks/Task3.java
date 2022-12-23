@@ -3,7 +3,9 @@ package tasks;
 import common.Person;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /*
 Задача 3
@@ -12,6 +14,16 @@ import java.util.List;
 public class Task3 {
 
   public static List<Person> sort(Collection<Person> persons) {
-    return new ArrayList<>(persons);
+
+    Comparator<Person> comparator = Comparator
+      .comparing(Person::getSecondName)
+      .thenComparing(Person::getFirstName)
+      .thenComparing(Person::getCreatedAt);
+
+    List<Person> listOfPersons = persons.stream()
+      .sorted(comparator)
+      .collect(Collectors.toList());
+
+    return listOfPersons;
   }
 }
