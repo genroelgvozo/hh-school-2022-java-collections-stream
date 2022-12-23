@@ -35,7 +35,7 @@ class Task8Test {
 
   @ParameterizedTest
   @MethodSource("generateDataForGetPersonNames")
-  public void getPersonNames(List<Person> persons, Map<Integer, String> expectIdToPersonFullNames) {
+  public void getPersonNames(Collection<Person> persons, Map<Integer, String> expectIdToPersonFullNames) {
     assertTrue(task.getPersonNames(persons).equals(expectIdToPersonFullNames));
   }
 
@@ -101,9 +101,12 @@ class Task8Test {
       put(7, "Ivan");
       put(8, "");
     }};
+    Person person1 = createPersonByParam(1, "Ivan", "Ivanov", "Ivanovich");
+    Person person2 = createPersonByParam(2, null, "Ivanov", "Ivanovich");
     return Stream.of(
         Arguments.of(persons1, idToPersonFullName1),
-        Arguments.of(new ArrayList<>(), new HashMap<>())
+        Arguments.of(new ArrayList<>(), new HashMap<>()),
+        Arguments.arguments(Set.of(person1, person2), Map.of(1, "Ivanov Ivan Ivanovich", 2, "Ivanov Ivanovich"))
     );
   }
 

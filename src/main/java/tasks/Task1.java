@@ -31,7 +31,6 @@ public class Task1 {
       return Collections.emptyList();
     }
     Map<Integer, Person> idToPerson = persons.stream()
-        .filter(Objects::nonNull)
         .collect(Collectors.toMap(Person::getId, Function.identity())); //O(n)
     return personIds.stream()
         .map(idToPerson::get)
