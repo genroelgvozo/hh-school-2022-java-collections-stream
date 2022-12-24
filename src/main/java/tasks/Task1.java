@@ -22,13 +22,20 @@ public class Task1 {
   }
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
+    /*Так как в начале из множества persons создается словать
+    с отображением id персоны в объект Person,
+    то ассимптотика работы метода 0(n), точнее 0(2n).
+    */
     Set<Person> persons = personService.findPersons(personIds);
 
-    Comparator<Person> comparator = Comparator.comparing(p -> personIds.indexOf(p.getId()));
+    Map<Integer, Person> personToIdMap = new HashMap<>();
+    for (Person person : persons) {
+      personToIdMap.put(person.getId(), person);
+    }
 
-    List<Person> listOfPersons = persons
+    List<Person> listOfPersons = personIds
       .stream()
-      .sorted(comparator)
+      .map(id -> personToIdMap.get(id))
       .collect(Collectors.toList());
 
     return listOfPersons;
