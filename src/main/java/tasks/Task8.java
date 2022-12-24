@@ -74,7 +74,7 @@ public class Task8 {
 //    }
 //    return map;
 //    Удобно метод выше переписать на стримы и с initialCapacity java сама разберется))
-    return persons.stream().collect(Collectors.toMap(Person::getId, this::convertPersonToString));
+    return persons.stream().distinct().collect(Collectors.toMap(Person::getId, this::convertPersonToString));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?

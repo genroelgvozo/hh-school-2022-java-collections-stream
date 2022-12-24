@@ -106,7 +106,8 @@ class Task8Test {
     return Stream.of(
         Arguments.of(persons1, idToPersonFullName1),
         Arguments.of(new ArrayList<>(), new HashMap<>()),
-        Arguments.arguments(Set.of(person1, person2), Map.of(1, "Ivanov Ivan Ivanovich", 2, "Ivanov Ivanovich"))
+        Arguments.arguments(Set.of(person1, person2), Map.of(1, "Ivanov Ivan Ivanovich", 2, "Ivanov Ivanovich")),
+        Arguments.arguments(List.of(person1, person1), Map.of(1, "Ivanov Ivan Ivanovich"))
     );
   }
 
