@@ -18,7 +18,11 @@ public class Task6 {
     return persons
             .stream()
             .flatMap(person -> personAreaIds.get(person.getId()).stream()
-                    .map(id -> (person.getFirstName() + " - " + areaHashMap.get(id).getName())))
+                    .map(id -> (getFormattedDescription(person.getFirstName(), areaHashMap.get(id).getName()))))
             .collect(Collectors.toSet());
+  }
+
+  private static String getFormattedDescription(String firstName, String areaName) {
+    return firstName + " - " + areaName;
   }
 }

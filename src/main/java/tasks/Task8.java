@@ -11,14 +11,10 @@ public class Task8 {
   private long count;
 
   public List<String> getNames(List<Person> persons) {
-    if (persons == null) {
+    if (persons == null || persons.size() == 0) {
       return Collections.emptyList();
     }
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    List<Person> personList = new ArrayList<>(persons);
-    return personList
+    return persons
             .stream()
             .skip(1)
             .map(Person::getFirstName)
@@ -47,8 +43,7 @@ public class Task8 {
     }
     return persons
             .stream()
-            .filter(person -> person.getFirstName() != null)
-            .collect(Collectors.toMap(Person::getId, Person::getFirstName, (person1, person2) -> person1));
+            .collect(Collectors.toMap(Person::getId, this::convertPersonToString, (person1, person2) -> person1));
   }
 
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {

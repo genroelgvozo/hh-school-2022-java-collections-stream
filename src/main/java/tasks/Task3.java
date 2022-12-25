@@ -2,6 +2,7 @@ package tasks;
 
 import common.Person;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,11 +12,15 @@ import java.util.List;
  */
 public class Task3 {
   public static List<Person> sort(Collection<Person> persons) {
-    return persons
-            .stream()
-            .sorted(Comparator.comparing(Person::getFirstName)
-                    .thenComparing(Person::getSecondName)
-                    .thenComparing(Person::getCreatedAt))
-            .toList();
+    if (persons == null) {
+      return Collections.emptyList();
+    } else {
+      return persons
+              .stream()
+              .sorted(Comparator.comparing(Person::getFirstName, Comparator.nullsFirst(Comparator.naturalOrder()))
+                      .thenComparing(Person::getSecondName, Comparator.nullsFirst(Comparator.naturalOrder()))
+                      .thenComparing(Person::getCreatedAt, Comparator.nullsFirst(Comparator.naturalOrder())))
+              .toList();
+    }
   }
 }
