@@ -3,6 +3,7 @@ package tasks;
 import common.Person;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,67 +18,42 @@ P.P.S Здесь ваши правки желательно прокоммент
  */
 public class Task8 {
 
-  private long count;
-
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-
-    return persons.stream().skip(1).map(Person::getFirstName).collect(Collectors.toList());
+    return persons.stream()
+      .skip(1)
+      .map(Person::getFirstName)
+      .collect(Collectors.toList());
   }
 
   //ну и различные имена тоже хочется
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
   public String convertPersonToString(Person person) {
-    String secondName = person.getSecondName();
-    String firstName = person.getFirstName();
-    String middleName = person.getMiddleName();
-
-    String result = String.format("%s %s %s",
-      secondName != null ? secondName : "",
-      firstName != null ? firstName : "",
-      middleName != null ? middleName : ""
-    );
-
-    return String.join(" ", result.trim().split("\\s+"));
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+        .filter(Objects::nonNull)
+        .filter(Predicate.not(String::isBlank))
+        .collect(Collectors.joining(" "));
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    int initialCapacity = persons.size() + persons.size() / 2;
-
-    Map<Integer, String> map = new HashMap<>(initialCapacity);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return persons.stream()
+      .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     Set<Person> setPersons1 = new HashSet<>(persons1);
-    Set<Person> setPersons2 = new HashSet<>(persons2);
 
-    setPersons1.retainAll(setPersons2);
-    if (setPersons1.size() == 0) {
-      return false;
-    }
-    return true;
+    return persons2.stream().anyMatch(setPersons1::contains);
   }
 
   //...
   public long countEven(Stream<Integer> numbers) {
-    count = numbers
-      .filter(num -> num % 2 == 0)
-      .count();
-    return count;
+    return numbers.filter(num -> num % 2 == 0).count();
   }
 }

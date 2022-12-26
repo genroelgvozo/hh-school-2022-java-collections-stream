@@ -1,7 +1,6 @@
 package tasks;
 
 import common.Person;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -14,16 +13,10 @@ import java.util.stream.Collectors;
 public class Task3 {
 
   public static List<Person> sort(Collection<Person> persons) {
-
-    Comparator<Person> comparator = Comparator
-      .comparing(Person::getSecondName)
-      .thenComparing(Person::getFirstName)
-      .thenComparing(Person::getCreatedAt);
-
-    List<Person> listOfPersons = persons.stream()
-      .sorted(comparator)
+    return persons.stream()
+      .sorted(Comparator.comparing(Person::getSecondName, Comparator.nullsFirst(Comparator.naturalOrder()))
+        .thenComparing(Person::getFirstName)
+        .thenComparing(Person::getCreatedAt))
       .collect(Collectors.toList());
-
-    return listOfPersons;
   }
 }

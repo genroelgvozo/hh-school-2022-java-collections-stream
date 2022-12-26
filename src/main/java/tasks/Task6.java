@@ -19,19 +19,14 @@ public class Task6 {
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
 
-    Map<Integer, String> areaIdToNameMap = new HashMap<>();
-    for (Area area : areas) {
-      areaIdToNameMap.put(area.getId(), area.getName());
-    }
+    Map<Integer, String> areaIdToNameMap = areas.stream()
+      .collect(Collectors.toMap(Area::getId, Area::getName));
 
-    Set<String> nameRegionSet = persons.stream()
-      .flatMap(person -> personAreaIds.get(person.getId())
-        .stream()
+    return persons.stream()
+      .flatMap(person -> personAreaIds.get(person.getId()).stream()
         .map(areaId -> String.format("%s - %s",
           person.getFirstName(),
           areaIdToNameMap.get(areaId))))
       .collect(Collectors.toSet());
-
-    return nameRegionSet;
   }
 }

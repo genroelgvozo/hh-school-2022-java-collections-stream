@@ -23,11 +23,8 @@ public class Task4 {
   }
 
   public List<ApiPersonDto> convert(List<Person> persons) {
-
-    List<ApiPersonDto> listOfPersonDTO = persons.stream()
-      .map(person -> personConverter.convert(person))
+    return persons.stream()
+      .map(personConverter::convert)
       .collect(Collectors.toList());
-
-    return listOfPersonDTO;
   }
 }

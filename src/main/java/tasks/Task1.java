@@ -4,6 +4,7 @@ import common.Person;
 import common.PersonService;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /*
@@ -28,16 +29,11 @@ public class Task1 {
     */
     Set<Person> persons = personService.findPersons(personIds);
 
-    Map<Integer, Person> personToIdMap = new HashMap<>();
-    for (Person person : persons) {
-      personToIdMap.put(person.getId(), person);
-    }
+    Map<Integer, Person> personToIdMap = persons.stream()
+      .collect(Collectors.toMap(Person::getId, Function.identity()));
 
-    List<Person> listOfPersons = personIds
-      .stream()
-      .map(id -> personToIdMap.get(id))
+    return personIds.stream()
+      .map(personToIdMap::get)
       .collect(Collectors.toList());
-
-    return listOfPersons;
   }
 }
