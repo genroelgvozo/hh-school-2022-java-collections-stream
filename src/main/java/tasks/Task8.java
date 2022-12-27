@@ -24,7 +24,7 @@ public class Task8 {
     if (persons.size() == 0) {
       return Collections.emptyList();
     }
-
+    // сложность remove - О(n), skip O(1), он не меняет список, просто перешагивает первый эл-т
     return persons.stream()
             .skip(1)
             .map(Person::getFirstName)
@@ -50,12 +50,16 @@ public class Task8 {
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
 
     return persons.stream()
-            .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
+            .collect(Collectors.toMap(Person::getId, this::convertPersonToString,
+                    (person1, person2) -> person1));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
     // предварительная проверка на пустоту коллеций, затем стрим
+    // Сложность по идее О(1), можно переписать на более красивое
+    // if (persons1.isEmpty() || persons2.isEmpty())
+    // тут точно О(1), так как размер коллекции записывается в свойствах
     if (persons1 == null || persons2 == null) {
       return false;
     }
@@ -65,7 +69,10 @@ public class Task8 {
 
   //...
   public long countEven(Stream<Integer> numbers) {
-    // no comments...
+//    count = 0;
+//    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
+//    return count;
+    // Была введена избыточная переменная-счетчик
     return numbers.filter(num -> num % 2 == 0).count();
   }
 }

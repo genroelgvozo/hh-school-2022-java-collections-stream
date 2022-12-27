@@ -21,16 +21,17 @@ public class Task6 {
                                                   Map<Integer, Set<Integer>> personAreaIds,
                                                   Collection<Area> areas) {
 
-    Map<Integer, Area> AreaIdToName = areas.stream()
+    // Действительно тупанул с названием, AreaIdToName для стрима подходит
+    Map<Integer, Area> idToAreaMap = areas.stream()
             .collect(Collectors.toMap(Area::getId, area -> area));
 
     return persons.stream()
             .flatMap(person -> personAreaIds.get(person.getId()).stream()
-                    .map(areaId -> GetPersonAreaInfo(person, AreaIdToName.get(areaId))))
+                    .map(areaId -> getPersonAreaInfo(person, idToAreaMap.get(areaId))))
             .collect(Collectors.toSet());
   }
 
-  public static String GetPersonAreaInfo (Person person, Area area) {
+  public static String getPersonAreaInfo (Person person, Area area) {
     return person.getFirstName() + " - " + area.getName();
   }
 }

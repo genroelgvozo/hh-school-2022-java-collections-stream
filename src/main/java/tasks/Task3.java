@@ -14,21 +14,25 @@ public class Task3 {
   public static List<Person> sort(Collection<Person> persons) {
 
     return persons.stream()
-            .sorted(new PersonsComparator())
+            .sorted(Comparator
+                    .comparing(Person::getSecondName)
+                    .thenComparing(Person::getSecondName)
+                    .thenComparing(Person::getCreatedAt))
             .toList();
   }
 }
 
-class PersonsComparator implements Comparator<Person> {
-
-  @Override
-  public int compare(Person a, Person b) {
-    if (a.getFirstName().equals(b.getFirstName())) {
-      if (a.getSecondName().equals(b.getSecondName())) {
-        return a.getCreatedAt().compareTo(b.getCreatedAt());
-      }
-      return a.getSecondName().compareTo(b.getSecondName());
-    }
-    return a.getFirstName().compareTo(b.getSecondName());
-  }
-}
+// С кастомным компаратором было интереснее)
+//class PersonsComparator implements Comparator<Person> {
+//
+//  @Override
+//  public int compare(Person a, Person b) {
+//    if (a.getFirstName().equals(b.getFirstName())) {
+//      if (a.getSecondName().equals(b.getSecondName())) {
+//        return a.getCreatedAt().compareTo(b.getCreatedAt());
+//      }
+//      return a.getSecondName().compareTo(b.getSecondName());
+//    }
+//    return a.getFirstName().compareTo(b.getSecondName());
+//  }
+//}
