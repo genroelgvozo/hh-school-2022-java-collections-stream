@@ -2,9 +2,10 @@ package tasks;
 
 import common.Person;
 import common.PersonService;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Задача 1
@@ -22,7 +23,16 @@ public class Task1 {
   }
 
   public List<Person> findOrderedPersons(List<Integer> personIds) {
+
     Set<Person> persons = personService.findPersons(personIds);
-    return Collections.emptyList();
+
+    Map<Integer, Person> personsData = persons.stream()
+            .collect(Collectors.toMap(Person::getId, person->person));
+
+    // Сложность O(n) - над каждым эл-том проводится константное число операций,
+    // поиск эл-тов в personsData происходит за О(1) и не влияет на общую сложность
+    return personIds.stream()
+            .map(personsData::get)
+            .toList();
   }
 }
