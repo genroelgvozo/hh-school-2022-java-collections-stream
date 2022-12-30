@@ -2,11 +2,12 @@ package tasks;
 
 import common.Person;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,67 +22,68 @@ P.P.S Здесь ваши правки желательно прокоммент
  */
 public class Task8 {
 
-  private long count;
+  private static final int FAKE_PERSONS = 1;
 
   //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+    return persons.stream()
+        .skip(FAKE_PERSONS)
+        .map(Person::getFirstName)
+        .collect(Collectors.toList());
   }
+  // многие называли причину как долгие ремув - O(n)
+  // но многие забывали что так же можно передать List.of() (метод же лист принимает, я имею права), и все вообще работать не будет
+  // как урок - всегда помните что все может быть неизменяемым, никогда не меняйте параметры - юзер вашего метода спасибо не скажет
 
   //ну и различные имена тоже хочется
+  // тут вообще ноукомментс, потому что идея за вас все делает) но кто-то ее не слушал (как и меня на лекции)
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
   //Для фронтов выдадим полное имя, а то сами не могут
+  // тут я в смятении
+  // очень много видел решений через стрим с первой попытки.. и вроде бы хорошо, но.. так никогда не было)
+  // этот метод хорошо выглядит через стрим, но это самое наверное не логичное для новичков использование его,
+  // тот самый пример когда стрим не из коллекции что-то может
+  // надеюсь вы не подглядывали в чужие ПРы Ж))
+  // а так - суть в том, что в бизнес коде я хочу прочесть и понять "что он делает" быстрее чем отглотнуть пивка из банки
+  // скорости низкоуровневость не добавит, а вот вероятность ошибки увеличит. И читаемость уменьшит
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
-
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+        .filter(Objects::nonNull)
+        .filter(Predicate.not(String::isBlank))
+        .collect(Collectors.joining(" "));
+    // читаем - возьми, фильтруй не налл, фильтруй не пустые, сджойни
+    // и никаких ошибок с пробелами лишними где  бы то ни было, никаких вложенных ифов, тримов, регэкспов, чего вы только не придумывали)
   }
 
   // словарь id персоны -> ее имя
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return persons.stream()
+        .collect(Collectors.toMap(
+            Person::getId,
+            this::convertPersonToString,
+            (a, b) -> a   // тут суть была вспомните ли вы этот нюанс
+            // (и заметите ли иф в изначально коде, который намекал, хоть и без него бы ничего не падало)
+        ));
   }
 
   // есть ли совпадающие в двух коллекциях персоны?
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
-      }
-    }
-    return has;
+    return persons1.stream().anyMatch(new HashSet<>(persons2)::contains); // это мой фаворит, потому что явно сказно че происходит
+    // еще можно !Collections.disjoint(new HashSet<>(persons1), persons2)
+    // ну или в обоих вариантах не превращать в сет, если не надо гарантированно быстро (сейчас O(n), без него так же может быть линейное, но если обе коллекции List - то O(n^2))
+    // на вопрос сколько работает 1 или 2 вариант (без сета) частенько отвечали O(n^2), тут сразу понимаю что к интерфейсам еще не привыкли
+    // вообщем нельзя ответить за сколько, все зависит от того какая реальная коллекция там приходит, тут можно передать и лист и сет
+    // и это кстати нормально писать именно такие дженерные методы
   }
 
   //...
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+    return numbers.filter(num -> num % 2 == 0).count(); // не самый удачные метод для задачки, но решил оставить
+    // суть в чем - count++ операция не атомарная, и если стрим параллельный - результат неправильный (при большом кол-ве чисел естественно)
+    // тут вообще все плохо, не стоит stream в таких случаях передавать, но это было больше на догадку про параллельность
+    // приватное поле как выпоняли было читом - чтобы считалось effectively final
   }
 }
